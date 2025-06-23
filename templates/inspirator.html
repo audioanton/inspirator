@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Inspirator
+{% endblock %}
+
+{% block main_heading %}
+  Inspirator
+{% endblock %}
+
+{% block main_block %}
+  {% if session['authorized'] %}
+    <div class="margin-top">
+
+      <form action="{{ url_for('inspirator.search') }}" method="post">
+        <table>
+          <tr>
+            <td><label for="text"><h6>Search Word:</h6></label></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="text" value="{{ word }}" id="text"></td>
+<!--             readonly-->
+               <td>
+                  <input type="button" onclick="getNewWord()" value="Random">
+              </td>
+          </tr>
+          <tr>
+            <td><h6>File types:</h6></td>
+          </tr>
+          {% for type in types %}
+            <tr>
+              <td><label for="{{ type }}">{{ type }}</label></td>
+              <td><input type="checkbox" value="{{ type }}" id="{{ type }}" name="file_types" checked/></td>
+            </tr>
+          {% endfor %}
+          <tr>
+            <td><label for="slider">Max length: <output id="outputLength"></output></label></td>
+            <td><input id="slider" name="slider" type="range" step="0.5" min="0.5" max="10" value="10"></td>
+          </tr>
+        </table>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    {% if error %}
+    <div class="margin-top">
+      <p class="error">{{ error }}</p>
+    </div>
+    {% endif %}
+
+    {% if sounds %}
+      <div class="margin-top">
+        <h3>{{ search_word }}</h3>
+        <table id="sounds">
+          <thead>
+            <tr>
+              <th>Sound</th>
+              <th>Title</th>
+              <th>File Type</th>
+              <th>Seconds</th>
+              <th>Size (MB)</th>
+            </tr>
+          </thead>
+            {% for sound in sounds %}
+              <tr class="sound-row">
+                <td><audio controls src="{{ url_for('inspirator.stream', sound_id=sound[0], type=sound[2]) }}"></audio></td>
+                <td>{{ sound[1] }}</td>
+                <td>{{ sound[2] }}</td>
+                <td>{{ sound[3] }}</td>
+                <td>{{ sound[4] }}</td>
+                <td><a href="{{ url_for('inspirator.download', sound_id=sound[0], sound_name=sound[1], type=sound[2]) }}"><button>Download</button></a></td>
+              </tr>
+            {% endfor %}
+        </table>
+        <p></p>
+      </div>
+      <input type="button" onclick="getNewSounds()" value="Shuffle Sounds">
+    {% endif %}
+
+  {% else %}
+      <a href="/inspirator/authorize"><button>Authorize at Freesound.org</button></a>
+  {% endif %}
+
+<script src="/static/inspirator.js"></script>
+
+{% endblock %}
+
+

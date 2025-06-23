@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Audio Anton - {% block title %}{% endblock %}</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"/>
+  </head>
+
+  <body>
+    <header>
+      <a href="{{ url_for('index') }}">
+        <div class="flex-row">
+          <img
+              alt="My logo: an orange cartoony computer monitor with musical notes for eyes and a piano for a mouth"
+              src="../static/images/logo_cropped.png"
+              width="512"
+              class="logo"
+          />
+          <h2>Audio<br />Anton</h2>
+        </div>
+      </a>
+      <nav role="navigation">
+        <ul class="flex-row text-uppercase text-large">
+          {% for link in links %}
+            <li><a href="{{ links[link] }}">{{link}}</a></li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1 class="color-green">{% block main_heading %}{% endblock %}</h1>
+        <div class="margin-top spaced-around">
+          {% block main_block %}{% endblock %}
+        </div>
+    </main>
+    <footer class="margin-top">
+      <nav role="navigation" class="centered-row">
+        <ul class="flex-row">
+          <ul class="flex-row">
+          {% for link in links %}
+            <li><a href="{{ links[link] }}">{{link.capitalize()}}</a></li>
+          {% endfor %}
+        </ul>
+        </ul>
+      </nav>
+      <nav role="social links" class="centered-row">
+        <ul class="flex-row">
+          {% for link in social_medias %}
+            <li><a href="{{ social_medias[link] }}" target="_blank">{{ link.capitalize() }}</a></li>
+          {% endfor %}
+        </ul>
+      </nav>
+      <a href="{{ url_for('index') }}" class="centered-row"><img
+              alt="My logo: an orange cartoony computer monitor with musical notes for eyes and a piano for a mouth"
+              src="../static/images/logo_cropped.png"
+              width="100"
+              class="logo"
+      /></a>
+    </footer>
+  </body>
+</html>
