@@ -11,7 +11,7 @@ class Inspirator:
         self.client_secret = client_secret
         self.token_url = "https://freesound.org/apiv2/oauth2/access_token/"
         self.types = ['wav', 'mp3', 'ogg', 'flac']
-        self.fields = 'name,id,type,duration,filesize'
+        self.fields = 'name,id,type,duration,filesize,bitrate,samplerate'
         self.words = get_words()
         self.max_length = 3
         self.authorization_url = ''
@@ -86,3 +86,13 @@ def get_words():
 
 def get_mime_type(file_type):
     return f'audio/{file_type}'
+
+def validate_file_types(selected_types, accepted_types):
+    if len(selected_types) <= 0:
+        return False
+
+    for file_type in selected_types:
+        if file_type not in accepted_types:
+            return False
+
+    return True
