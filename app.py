@@ -1,7 +1,6 @@
 import os
 from flask import Flask, redirect, url_for
 from blueprints.inspirator import inspirator
-
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.register_blueprint(inspirator)

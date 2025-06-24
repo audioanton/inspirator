@@ -2,8 +2,10 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 from requests_oauthlib import OAuth2Session
 from utils.inspirator_utils import generate_sound, get_search_uri, get_download_uri, Inspirator, get_mime_type
 from werkzeug.utils import send_file
+from dotenv import load_dotenv
 import io, os
 
+load_dotenv()
 inspirator = Blueprint('inspirator', __name__, template_folder='templates', url_prefix='/inspirator')
 
 utils = Inspirator(os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"])
