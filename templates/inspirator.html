@@ -9,17 +9,32 @@
 {% endblock %}
 
 {% block main_block %}
+    <div>
+        <p>
+            A simple inspiration tool for musicians and sound enthusiasts. Requires an account with <strong>Freesound.org</strong>
+        </p>
+        <br>
+        <ul>
+            <li>Prompt for an interesting sound with a random word or written text</li>
+            <li>Sample and download a sound you enjoy</li>
+            <li>Use in a project!</li>
+        </ul>
+        <br>
+        <p><i>Only .mp3 works for iOS users</i></p>
+        <br>
+    </div>
+
   {% if session['authorized'] %}
     <div class="margin-top">
 
       <form action="{{ url_for('inspirator.search') }}" method="post">
+        {{ form.csrf_token }}
         <table>
           <tr>
             <td><label for="text"><h6>Search Word:</h6></label></td>
           </tr>
           <tr>
             <td><input type="text" name="text" value="{{ word }}" id="text"></td>
-<!--             readonly-->
                <td>
                   <input type="button" onclick="getNewWord()" value="Random">
               </td>
@@ -40,11 +55,20 @@
         </table>
         <button type="submit">Search</button>
       </form>
+    {% if form.errors %}
+        <div class="errors margin-top">
+            {% for field_errors in form.errors.values() %}
+                {% for error in field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
     </div>
 
     {% if error %}
     <div class="margin-top">
-      <p class="error">{{ error }}</p>
+      <p class="errors">{{ error }}</p>
     </div>
     {% endif %}
 
@@ -63,7 +87,7 @@
           </thead>
             {% for sound in sounds %}
               <tr class="sound-row">
-                <td><audio controls src="{{ url_for('inspirator.stream', sound_id=sound[0], type=sound[2]) }}"></audio></td>
+                <td><audio controls src="{{ url_for('inspirator.stream', sound_id=sound[0], type=sound[2]) }}" preload>Not supported</audio></td>
                 <td>{{ sound[1] }}</td>
                 <td>{{ sound[2] }}</td>
                 <td>{{ sound[3] }}</td>

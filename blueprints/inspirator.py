@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for, Response, jsonify, stream_with_context
 from requests_oauthlib import OAuth2Session
-from utils.inspirator_utils import generate_sound, get_search_uri, get_download_uri, Inspirator, get_mime_type
+from utils.inspirator_utils import generate_sound, get_search_uri, get_download_uri, Inspirator, get_mime_type, validate_file_types
 from werkzeug.utils import send_file
 from dotenv import load_dotenv
+from utils.form_validation import SoundForm
 import io, os
 
 load_dotenv()
@@ -10,9 +11,11 @@ inspirator = Blueprint('inspirator', __name__, template_folder='templates', url_
 
 utils = Inspirator(os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"])
 
+
+
 @inspirator.route('/')
 def home():
-    return render_template('inspirator.html', word=utils.get_word(), types=utils.types)
+    return render_template('inspirator.html', form=SoundForm())
 
 @inspirator.route('/authorize')
 def authorize():
@@ -24,27 +27,35 @@ def authorize():
         session['token'] = utils.get_token(request.args.get('code'), utils.oauth_state)
         session['authorized'] = True
 
-    return redirect(url_for('inspirator.home'))
+    return redirect(url_for('inspirator.search'))
 
-@inspirator.route('/search', methods=['POST'])
+@inspirator.route('/search', methods=['POST', 'GET'])
 def search():
-    # TODO validate input
+    form = SoundForm()
 
-    oauth = utils.get_oauth()
-    text = request.form.get('text')
     selected_types = request.form.getlist('file_types')
-    max_length = request.form.get('slider')
 
-    uri = get_search_uri(text, utils.fields, max_length)
+    if not validate_file_types(selected_types, utils.types):
+        return render_template('inspirator.html', error='Please check at least one of the provided file types', types=utils.types, form=form)
 
-    response = oauth.get(uri)
-    if response.ok:
-        utils.filter_sounds(response, selected_types)
-        if len(utils.sounds) == 0:
-            return render_template('inspirator.html', error='No sounds found!', types=utils.types)
-        return render_template('inspirator.html', sounds=utils.get_three_sounds(), search_word=text, types=utils.types)
+    if form.validate_on_submit():
+        oauth = utils.get_oauth()
+        text = request.form.get('text')
+        max_length = request.form.get('slider')
 
-    return render_template('inspirator.html', error=response.status_code)
+        uri = get_search_uri(text, utils.fields, max_length)
+
+        response = oauth.get(uri)
+        if response.ok:
+            utils.filter_sounds(response, selected_types)
+            if len(utils.sounds) == 0:
+                return render_template('inspirator.html', error='No sounds found!', types=utils.types, form=form)
+            return render_template('inspirator.html', sounds=utils.get_three_sounds(), search_word=text, types=utils.types, form=form)
+
+        return render_template('inspirator.html', error=response.status_code, form=form)
+
+    print(form.errors.values().mapping)
+    return render_template('inspirator.html', form=form, word=utils.get_word(), types=utils.types)
 
 @inspirator.route('/word')
 def word():
